@@ -36,25 +36,43 @@ Output format: Return in JSON format with keys: is_anomaly, reason
 Answer:"""
 
 # C1-1: One anomaly case hit in RAG
-
-PROMPT_C1_1 = """Your task is to determine whether the input log is anomalous.
+PROMPT_C1_1 = """Your task is to determine whether the input log is anomalous based on a single retrieved anomaly case.
 
 Input Log Template:
 {query}
 
-Retrieved One Similar Anomalous Log Case with Explanation:
-{context}
+Actual log message:
+{log_content}
 
-If the input log is structurally or semantically similar to the retrieved case, classify it as anomaly and use the given explanation.
+Retrieved Anomalous Log Case with Explanation:
+{SimilarAnomaly}
+
+ANALYSIS INSTRUCTIONS:
+Since we retrieved exactly one anomaly case, carefully analyze whether the current log matches the retrieved case.
+
+Steps to follow:
+1. First, confirm the log as anomalous (is_anomaly = 1).
+2. Extract the explanation from the retrieved anomaly case.
+3. Analyze how well the current log matches the retrieved case.
+4. Extract any relevant contextual information from the log message.
+5. Identify any case ID mentioned in the retrieved case.
 
 Output format (in JSON):
-{
+{{
   "is_anomaly": 1,
-  "reason": "{explanation from context}"
-}
+  "reason": "Explanation from the retrieved anomaly case",
+  "matched_case_id": "Relevant case ID if available",
+  "confidence": "High/Medium/Low based on similarity",
+  "extracted_context": {{
+    "relevant fields extracted from the actual log message"
+  }}
+}}
+
+Remember: Since only one anomaly case was retrieved, focus on providing a clear explanation of why 
+this log matches the anomaly pattern in the retrieved case.
 Answer:"""
 
-
+# C1-2: Multiple anomaly cases hit, with consistent explanations to be merged
 
 PROMPT_C1_2 = """Your task is to determine whether the input log is anomalous based on retrieved anomaly cases.
 
@@ -67,53 +85,65 @@ Actual log message:
 Retrieved Anomalous Log Cases with Explanations:
 {SimilarAnomaly}
 
-CRITICAL INSTRUCTION:
-If {SimilarAnomaly} contains ANY text (is not empty), you MUST classify this log as an anomaly (is_anomaly = 1) WITHOUT ANY CONTENT ANALYSIS.
-Do NOT analyze whether the log content semantically matches the retrieved cases.
-The mere presence of retrieved cases is the ONLY criteria for anomaly classification.
+ANALYSIS INSTRUCTIONS:
+Since we retrieved multiple anomaly cases with consistent explanations, this log should be classified as anomalous.
+Your task is to merge the explanations into a single, comprehensive reason.
 
-Steps to follow STRICTLY:
-1. Check if {SimilarAnomaly} is empty or not.
-2. If {SimilarAnomaly} is NOT empty, set is_anomaly = 1 and use text from {SimilarAnomaly} as the reason.
-3. If {SimilarAnomaly} is empty, set is_anomaly = 0.
-4. Extract contextual information from the log message if needed.
+Steps to follow:
+1. First, confirm the log as anomalous (is_anomaly = 1).
+2. Identify common themes across all retrieved explanations.
+3. Merge the explanations, removing redundancies while preserving all unique insights.
+4. Extract any relevant contextual information from the log message.
+5. Identify any case IDs mentioned in the retrieved cases.
 
 Output format (in JSON):
 {{
-  "is_anomaly": 1 if {SimilarAnomaly} contains ANY text, otherwise 0,
-  "reason": "Direct explanation from the retrieved anomalous cases",
+  "is_anomaly": 1,
+  "reason": "Comprehensive merged explanation from all retrieved cases",
   "matched_case_ids": ["Relevant case IDs if available"],
   "extracted_context": {{
     "relevant fields extracted from the actual log message"
   }}
 }}
 
-Remember: Do NOT perform semantic comparison between the input log and the retrieved cases.
-The only decision criterion is whether {SimilarAnomaly} contains text or not.
+Remember: Since the retrieved cases are consistent, focus on creating a unified, thorough explanation 
+that captures all important aspects from the individual explanations.
 Answer:"""
-# C2-1: Multiple anomaly cases hit, with conflicting or diverse explanations
 
-PROMPT_C2_1 = """Your task is to determine whether the input log is anomalous, based on multiple potentially conflicting anomaly explanations retrieved from a known case base.
+# C2-1: Multiple anomaly cases hit, with conflicting or diverse explanations
+PROMPT_C2_1 = """Your task is to determine whether the input log is anomalous based on multiple retrieved anomaly cases with potentially conflicting explanations.
 
 Input Log Template:
 {query}
 
-Actural log message:
+Actual log message:
 {log_content}
 
 Retrieved Anomalous Log Cases with Explanations:
-{context}
+{SimilarAnomaly}
 
-Please reason step by step:
-1. Analyze each retrieved case and explanation.
-2. Determine whether the input log is more similar to a specific class of anomaly.
-3. If similarity is weak or conflicting, analyze the log independently.
-4. Ignore placeholders like <*>.
+ANALYSIS INSTRUCTIONS:
+You have retrieved multiple anomaly cases with diverse or conflicting explanations. You need to carefully analyze whether the current log is truly anomalous.
+
+Steps to follow:
+1. Analyze each retrieved case and its explanation individually.
+2. Compare the input log with each retrieved case to assess similarity.
+3. Determine if the input log aligns more closely with a specific type of anomaly.
+4. Weigh the evidence for and against classifying this log as anomalous.
+5. Make a final determination based on the strength of evidence.
+6. Extract any relevant contextual information from the log message.
+7. Identify case IDs mentioned in the retrieved cases that are most relevant.
 
 Output format (in JSON):
 {
   "is_anomaly": 0 or 1,
-  "reason": "...",
-  "matched_case_ids": ["..."]
+  "reason": "Detailed explanation of your decision, including which cases were most influential",
+  "matched_case_ids": ["Relevant case IDs if available"],
+  "confidence": "High/Medium/Low based on the strength of evidence",
+  "extracted_context": {
+    "relevant fields extracted from the actual log message"
+  }
 }
+
+Remember: Unlike cases where explanations are consistent, here you must critically evaluate conflicting information and make a reasoned judgment about whether this log is truly anomalous.
 Answer:"""
