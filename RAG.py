@@ -246,7 +246,7 @@ class RAGPostProcessor:
         return content.strip()
 
 
-    def get_normal_log_entries(self):
+    def get_anormaly_log_entries(self):
         self.logger.info(f"Attempting to read data from: {self.train_data_path}")
         
         # Check if file exists
@@ -354,8 +354,8 @@ class RAGPostProcessor:
         # Make sure output directory exists
         os.makedirs(os.path.dirname(result_path), exist_ok=True)
 
-        # Get normal log entries and check if we have data
-        normal_log_entries = self.get_normal_log_entries()
+        # Get abnormal log entries and check if we have data
+        normal_log_entries = self.get_anormaly_log_entries()
         self.logger.info(f"Log templates to embedding in RAG: {len(normal_log_entries)}")
         
         if not normal_log_entries:
