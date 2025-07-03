@@ -1,9 +1,9 @@
-is_train: True # train deepsvdd
+# System configuration
+device: cuda:0
+output_dir: outputs
 is_rag: True # use post processing stage
 dataset_name: KUBE
-train_ratio: 0.8
-window_size: 200 
-window_time: 1800 # 30 minutes
+regenerate_graphs: false
 
 # openai key
 api_key: xxxxxxxxxxxxxxxxxxxx
@@ -11,18 +11,21 @@ api_base: xxxxxxxxxxxxxxxxxx
 
 #llm_name: gpt-3.5-turbo
 llm_name: qwen-max
-# llm_name: mistralai/Mistral-7B-Instruct-v0.1 # from huggingface
 
-# deepsvdd parameters
-optimizer_name: adam
-lr: 0.0001
-n_epochs: 150
-lr_milestones: [50]
-batch_size: 40960
-weight_decay: 0.0005
-#device: cuda:0
-device: cpu
-n_jobs_dataloader: 0
+# Model configuration
+model: DiGCN
+hidden_dim: 128
+layers: 2
+bias: false
+aggregation: Mean
+
+# Training configuration
+batch_size: 32
+epochs: 150
+lr: 0.01
+weight_decay: 0.0001
+alpha: 1.0
+beta: 0.0
 
 # rag parameters
 threshold: 0.8
