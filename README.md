@@ -1,4 +1,3 @@
-# Leveraging RAG-Enhanced Large Language Model for Semi-Supervised Log Anomaly Detection (ISSRE-2024)
 
 ## Dataset
 
