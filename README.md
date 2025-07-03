@@ -1,70 +1,70 @@
+# LogADE: Log Anomaly Detection and Explanation
 
-## Dataset
+A hybrid system combining graph-based deep learning and large language models for detecting and explaining anomalies in system logs.
 
-We will use the Kubelet log in the example. 
+## 1. Introduction
 
-## Reproducibility Instructions
+LogADE is a novel framework that leverages both graph neural networks (GNNs) and retrieval-augmented generation (RAG) to detect and explain anomalies in system logs. The system processes log data in two main stages:
 
-### Environment Setup
+1. **Graph-based Anomaly Detection**: Uses Directional Graph Convolutional Networks (DiGCN) to identify anomalous graph.
 
-**Requirements:**
+2. **LLM-powered Explanation Generation**: Uses a RAG system to retrieve similar anomaly cases and generate explanations for detected anomalies.
 
-- Python 3.8.18
-- NVIDIA GPU + CUDA cuDNN
-- PyTorch 1.13.0
-- langchain 0.2.14
-- transformers 4.37.2
-- openai 1.42.0
+The framework is particularly effective for complex log analysis tasks, such as Kubernetes logs, where context and relationships between log entries are important.
 
-The required packages are listed in requirements.txt. Install:
+## 2. Getting Started
 
-`pip install -r requirements.txt`
+### Prerequisites
 
-### Getting Started
+- Python 3.9+
+- PyTorch 1.9+
+- CUDA-compatible GPU (recommended)
+- Access to an LLM API (OpenAI GPT or Qwen)
 
-You need to follow these steps to **completely** run `LogADE` 
+### Installation
 
-**Step1: set api-key and get pretrained language model**
-
-
-1. get chatgpt api-key for ChatGPT and LLM Embedding
-- As for LChatGPT, you need to set the **api-key** value  in configs.yaml
-- As for Local LLM, you need deploy with ollama
-
-**Step2: set config parameters**
-
-```jsx
-# openai key, you can get from :https://www.closeai-asia.com
-api_key: PUT_YOUR_OWN_API_KEY_HERE 
-api_base: https://api.openai-proxy.org/v1
-
-llm_name: gpt-3.5-turbo
-# llm_name: mistralai/Mistral-7B-Instruct-v0.1 # from huggingface
-
-# deepsvdd parameters
-normal_class: 0
-is_pretrain: False
-optimizer_name: adam
-lr: 0.0001
-n_epochs: 150
-lr_milestones: [50]
-batch_size: 40960
-weight_decay: 0.0005
-device: cuda:0
-n_jobs_dataloader: 0
-
-# rag parameters
-threshold: 0.8
-topk: 5
-prompt: prompt5
-persist_directory: ./output/ragdb-kube
-
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/logade.git
+cd logade
 ```
 
-**Step3: let’s go !**
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-Download the dataset and the desired model, and then adjust the configs parameters to what you want, then:
+3. Configure API keys in `config.yaml`
 
-`python main.py` 
+## 3. Steps to Run
 
-and you will find the results in outpout/runtime.log ！
+### Step 1: Prepare Data
+1. Place your log data in CSV format in the `Data/` directory.
+2. Generate graph representations from log data using:
+```bash
+python -m preprocessing.graph_generator --dataset YOUR_DATASET
+```
+   - `--dataset`: Name of your dataset (e.g., Kubelet, HDFS)
+   - `--samples`: Number of graph samples to generate
+   - `--anomaly_pct`: Percentage of anomalies in the samples (0.0-1.0)
+   - `--adj_type`: Adjacency type (default: 'ib', options: 'un', 'appr', 'ib')
+
+### Step 2: Run the Graph Level Anomaly Detection
+```bash
+python graphanomaly/main.py
+```
+
+This will:
+- Process log data and build graph representations
+- Train the DiGCN model to detect anomalies in log graphs
+- Identify anomalous graphs and record the corresponding log lines
+
+
+### Step 3: Run the RAG Pipeline
+```bash
+python main.py
+```
+
+This will:
+- Generate explanations for these anomalous logs using the RAG system
+- Output results to the `output/` directory
