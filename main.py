@@ -33,11 +33,11 @@ logger.addHandler(file_handler)
 
 def main():
     logger.info(configs)    
-    train_log_structed_path = f"./dataset/{configs['dataset_name']}/train_log_structured.csv"
+    anomaly_log_structed_path = f"./dataset/{configs['dataset_name']}/anomaly_log_structured.csv"
     test_log_structed_path = f"./dataset/{configs['dataset_name']}/test_log_structured.csv"
   
     if configs['is_rag']:
-        RagPoster = RAGPostProcessor(configs, train_data_path=train_log_structed_path, logger=logger)
+        RagPoster = RAGPostProcessor(configs, train_data_path=anomaly_log_structed_path, logger=logger)
         RagPoster.post_process(test_log_structed_path, test_log_structed_path)
 
 
