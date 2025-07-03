@@ -17,9 +17,9 @@ The framework is particularly effective for complex log analysis tasks, such as 
 ### Prerequisites
 
 - Python 3.9+
-- PyTorch 1.9+
 - CUDA-compatible GPU (recommended)
 - Access to an LLM API (OpenAI GPT or Qwen)
+- uv package manager (for virtual environment)
 
 ### Installation
 
@@ -29,7 +29,13 @@ git clone https://github.com/yourusername/logade.git
 cd logade
 ```
 
-2. Install dependencies:
+2. Set up a virtual environment using uv:
+```bash
+uv venv --python 3.10
+source .venv/bin/activate 
+```
+
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
