@@ -37,7 +37,7 @@ source .venv/bin/activate
 
 3. Install dependencies:
 ```bash
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 ```
 
 3. Configure API keys in `config.yaml`
